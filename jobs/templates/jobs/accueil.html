@@ -1,0 +1,88 @@
+{% extends "base.html" %} {% block title %}Accueil - Trouvez un emploi à
+Kinshasa{% endblock %} {% block content %}
+<!-- Section Héro (Bannière de recherche) -->
+<div
+  class="hero bg-base-100 rounded-2xl p-8 mb-12 shadow-sm border border-base-300"
+>
+  <div class="hero-content text-center max-w-2xl mx-auto">
+    <div>
+      <h1
+        class="text-4xl sm:text-5xl font-black tracking-tight mb-4 text-neutral"
+      >
+        Découvrez votre prochain <span class="text-primary">Job</span> ici !
+      </h1>
+      <p class="mb-6 text-base-content/70">
+        Des centaines d'opportunités n'attendent que vous. Postulez en 3 clics
+        auprès des meilleures entreprises.
+      </p>
+      <!-- Barre de recherche rapide (Stylisée avec DaisyUI) -->
+      <div class="join w-full max-w-md shadow-md">
+        <input
+          class="input input-bordered join-item w-full bg-base-100"
+          placeholder="Métier, compétences, mot-clé..."
+        />
+        <button class="btn btn-primary join-item">Rechercher</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section des Offres d'emploi -->
+<div class="mb-6 flex justify-between items-center">
+  <h2 class="text-2xl font-extrabold tracking-tight">
+    Dernières offres publiées
+  </h2>
+  <a href="#" class="link link-primary font-medium text-sm"
+    >Voir toutes les offres →</a
+  >
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {% for job in offres %}
+  <div
+    class="card bg-base-100 border border-base-300 shadow-sm hover:shadow-md transition-all rounded-xl"
+  >
+    <div class="card-body p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex justify-between items-start mb-2">
+          <!-- Nom de l'entreprise -->
+          <span
+            class="text-xs font-bold uppercase tracking-wider text-primary/80"
+            >{{ job.company.name }}</span
+          >
+          <!-- Catégorie/Secteur -->
+          <span class="badge badge-sm badge-soft badge-neutral"
+            >{{ job.category.name }}</span
+          >
+        </div>
+        <!-- Titre du poste -->
+        <h3 class="card-title text-xl font-bold text-neutral mb-2">
+          {{ job.title }}
+        </h3>
+        <!-- Description courte -->
+        <p class="text-sm text-base-content/70 line-clamp-3 mb-4">
+          {{ job.description }}
+        </p>
+      </div>
+
+      <div
+        class="border-t border-base-200 pt-4 mt-2 flex justify-between items-center"
+      >
+        <!-- Salaire -->
+        <span class="text-lg font-black text-neutral">{{ job.salary }} $</span>
+        <!-- Bouton d'action -->
+        <a href="#" class="btn btn-primary btn-sm btn-soft">Voir l'offre</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <!-- Si la base de données XAMPP est vide -->
+  <div class="col-span-full alert alert-info shadow-sm">
+    <span
+      >Aucune offre d'emploi n'est disponible pour le moment dans la base de
+      données.</span
+    >
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

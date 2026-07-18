@@ -1,0 +1,85 @@
+from django.db import models
+from accounts.models import Users, Skills 
+
+# Create your models here.
+class Categories(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    name = models.CharField(unique=True, max_length=100)
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'categories'
+
+
+class Companies(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    recruiter = models.ForeignKey('accounts.Users', on_delete=models.CASCADE)
+    # recruiter = models.ForeignKey('accounts.Users', models.DO_NOTHING)
+    company_name = models.CharField(max_length=150)
+    email = models.CharField(max_length=150, blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    website = models.CharField(max_length=255, blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    logo = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'companies'
+
+
+class Applications(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    user = models.ForeignKey('accounts.Users', on_delete=models.CASCADE)
+    # user = models.ForeignKey('accounts.Users', models.DO_NOTHING)
+    job = models.ForeignKey('Jobs', models.DO_NOTHING)
+    application_date = models.DateTimeField(blank=True, null=True)
+    status = models.CharField(max_length=12, blank=True, null=True)
+    matching_score = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    cv = models.CharField(max_length=255, blank=True, null=True)
+    cover_letter = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'applications'
+
+class JobSkills(models.Model):
+    pk = models.CompositePrimaryKey('job_id', 'skill_id')
+    job = models.ForeignKey('Jobs', models.DO_NOTHING)
+    skill = models.ForeignKey('accounts.Skills', on_delete=models.CASCADE)
+    # skill = models.ForeignKey('accounts.Skills', models.DO_NOTHING)
+    required = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'job_skills'
+
+
+class Jobs(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    company = models.ForeignKey(Companies, models.DO_NOTHING)
+    category = models.ForeignKey(Categories, models.DO_NOTHING, blank=True, null=True)
+    title = models.CharField(max_length=150)
+    description = models.TextField()
+    city = models.CharField(max_length=100, blank=True, null=True)
+    province = models.CharField(max_length=100, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    contract_type = models.CharField(max_length=100, blank=True, null=True)
+    salary_min = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    salary_max = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    experience_required = models.IntegerField(blank=True, null=True)
+    education_required = models.CharField(max_length=100, blank=True, null=True)
+    vacancies = models.IntegerField(blank=True, null=True)
+    deadline = models.DateField(blank=True, null=True)
+    status = models.CharField(max_length=8, blank=True, null=True)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'jobs'
