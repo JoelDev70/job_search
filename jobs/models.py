@@ -7,6 +7,9 @@ class Categories(models.Model):
     name = models.CharField(unique=True, max_length=100)
     description = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return self.name
+    
     class Meta:
         managed = False
         db_table = 'categories'
@@ -28,6 +31,9 @@ class Companies(models.Model):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
+    def __str__(self):
+        return self.company_name
+    
     class Meta:
         managed = False
         db_table = 'companies'
@@ -44,6 +50,9 @@ class Applications(models.Model):
     cv = models.CharField(max_length=255, blank=True, null=True)
     cover_letter = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return self.user.username
+    
     class Meta:
         managed = False
         db_table = 'applications'
@@ -80,6 +89,9 @@ class Jobs(models.Model):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
+    def __str__(self):
+        return self.title
+    
     class Meta:
         managed = False
         db_table = 'jobs'

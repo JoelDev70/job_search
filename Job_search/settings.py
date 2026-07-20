@@ -60,7 +60,7 @@ ROOT_URLCONF = "Job_search.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -130,3 +130,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+
+# Configuration pour forcer Django à s'adapter aux anciennes versions de MariaDB (XAMPP)
+from django.db import connections
+from django.db.utils import ConnectionHandler
+
+original_create_connection = ConnectionHandler.create_connection
+
+def patched_create_connection(self, alias):
+    conn = original_create_connection(self, alias)
+    if conn.vendor == 'mysql':
+        # On désactive la fonction qui cause l'AssertionError dans bulk_create
+        conn.features.can_return_rows_from_insert = False
+        conn.features.can_return_ids_from_insert = False
+    return conn
+
+ConnectionHandler.create_connection = patched_create_connection

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}JobSearch Kinshasa{% endblock %}</title>
+    <!-- Chargement de Tailwind CSS et DaisyUI -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/daisyui@5"
+      type="text/css"
+    />
+    <!-- <link href="https://cloudflare.com" rel="stylesheet" type="text/css" /> -->
+    <!-- <link href="https://jsdelivr.net" rel="stylesheet" type="text/css" /> -->
+    <script src="https://tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen flex flex-col bg-base-200 text-base-content">
+    <!-- LA BARRE DE NAVIGATION (NAVBAR DAISYUI) -->
+    <div class="navbar bg-base-100 shadow-md px-4 sm:px-8 sticky top-0 z-50">
+      <div class="flex-1">
+        <a
+          href="/"
+          class="btn btn-ghost text-xl font-black text-primary tracking-tight"
+          >💼 JobSearch</a
+        >
+      </div>
+      <div class="flex-none gap-4">
+        <ul class="menu menu-horizontal px-1 font-medium hidden md:flex">
+          <li><a href="#">Trouver un job</a></li>
+          <li><a href="#">Entreprises</a></li>
+        </ul>
+        <div class="flex gap-2">
+          <a href="#" class="btn btn-ghost btn-sm">Connexion</a>
+          <a href="#" class="btn btn-primary btn-sm">S'enregistrer</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZONE DYNAMIQUE (LE CONTENU DE CHAQUE PAGE RESTE ICI) -->
+    <main class="flex-grow p-4 sm:p-8 max-w-7xl w-full mx-auto">
+      {% block content %}
+      <!-- Le contenu spécifique écrasera ce bloc -->
+      {% endblock %}
+    </main>
+
+    <!-- LE PIED DE PAGE (FOOTER DAISYUI) -->
+    <footer
+      class="footer footer-center p-6 bg-base-100 text-base-content border-t border-base-300"
+    >
+      <aside>
+        <p class="font-bold">
+          JobSearch RDC<br />La plateforme moderne de recrutement.
+        </p>
+        <p>Copyright © 2026 - Tous droits réservés.</p>
+      </aside>
+    </footer>
+  </body>
+</html>

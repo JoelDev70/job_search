@@ -10,6 +10,9 @@ class Notifications(models.Model):
     is_read = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField()
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         managed = False
         db_table = 'notifications'
@@ -20,6 +23,9 @@ class ProfileSkills(models.Model):
     profile = models.ForeignKey('Profiles', models.DO_NOTHING)
     skill = models.ForeignKey('Skills', models.DO_NOTHING)
     level = models.CharField(max_length=12, blank=True, null=True)
+
+    def __str__(self):
+        return self.skill
 
     class Meta:
         managed = False
@@ -46,6 +52,9 @@ class Profiles(models.Model):
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
+    def __str__(self):
+        return self.user.username
+
     class Meta:
         managed = False
         db_table = 'profiles'
@@ -56,6 +65,9 @@ class Skills(models.Model):
     name = models.CharField(unique=True, max_length=100)
     category = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         managed = False
@@ -74,6 +86,9 @@ class Users(models.Model):
     is_active = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
+
+    def __str__(self):
+        return self.username
 
     class Meta:
         managed = False

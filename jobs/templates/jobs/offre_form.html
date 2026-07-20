@@ -1,0 +1,106 @@
+{% extends "base.html" %} {% block content %}
+<div
+  class="w-full max-w-xl mx-auto bg-base-100 p-6 rounded-2xl shadow-sm border border-base-300"
+>
+  <!-- <h2 class="text-2xl font-black mb-6 text-neutral">
+    Publier une nouvelle offre
+  </h2> -->
+  <a href="{% url 'ajouter_offre' %}" class="btn btn-primary">
+    ➕ Publier une offre
+  </a>
+  <form method="POST" class="space-y-4">
+    {% csrf_token %}
+
+    <div class="form-control w-full">
+      <label class="label"
+        ><span class="label-text font-bold">Titre du poste</span></label
+      >
+      <input
+        type="text"
+        name="title"
+        class="input input-bordered w-full"
+        value="{{ job.title }}"
+        required
+      />
+    </div>
+
+    <!-- Menu déroulant dynamique pour les Entreprises -->
+    <div class="form-control w-full">
+      <label class="label"
+        ><span class="label-text font-bold">Entreprise partenaire</span></label
+      >
+      <select name="company" class="select select-bordered w-full" required>
+        <option value="" disabled selected>Sélectionnez l'entreprise</option>
+        {% for comp in companies %}
+        <option
+          value="{{ comp.id }}"
+          {%
+          if
+          job.company.id=""
+          ="comp.id"
+          %}selected{%
+          endif
+          %}
+        >
+          {{ comp.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Menu déroulant dynamique pour les Catégories -->
+    <div class="form-control w-full">
+      <label class="label"
+        ><span class="label-text font-bold">Secteur d'activité</span></label
+      >
+      <select name="category" class="select select-bordered w-full" required>
+        <option value="" disabled selected>Sélectionnez une catégorie</option>
+        {% for cat in categories %}
+        <option
+          value="{{ cat.id }}"
+          {%
+          if
+          job.category.id=""
+          ="cat.id"
+          %}selected{%
+          endif
+          %}
+        >
+          {{ cat.name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-control w-full">
+      <label class="label"
+        ><span class="label-text font-bold">Salaire proposé ($)</span></label
+      >
+      <input
+        type="number"
+        name="salary"
+        class="input input-bordered w-full"
+        value="{{ job.salary }}"
+        required
+      />
+    </div>
+
+    <div class="form-control w-full">
+      <label class="label"
+        ><span class="label-text font-bold">Description des tâches</span></label
+      >
+      <textarea
+        name="description"
+        class="textarea textarea-bordered w-full h-32"
+        required
+      >
+{{ job.description }}</textarea
+      >
+    </div>
+
+    <button type="submit" class="btn btn-primary w-full mt-4">
+      Enregistrer l'annonce
+    </button>
+  </form>
+</div>
+{% endblock %}

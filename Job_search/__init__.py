@@ -1,29 +1,50 @@
+# import pymysql
+# import sys
+
+# # 1. Émuler MySQLdb avec PyMySQL pour Python 3.13
+# pymysql.constants.COMMAND = None
+# sys.modules["MySQLdb"] = pymysql
+# pymysql.install_as_MySQLdb()
+
+# # 2. Importer les modules d'initialisation de Django
+# from django.db.backends.mysql import base
+# from django.db.backends.base.base import BaseDatabaseWrapper
+
+# # 3. Court-circuiter définitivement le blocage de version de MariaDB
+# def fake_check_version(*args, **kwargs):
+#     pass
+
+# base.DatabaseFeatures.check_database_version_supported = fake_check_version
+# BaseDatabaseWrapper.check_database_version_supported = fake_check_version
 
 import pymysql
 import sys
 
-# 1. Simuler les constantes requises par Django 3.13+
+# 1. Émuler MySQLdb avec PyMySQL pour l'environnement Python 3.13
 pymysql.constants.COMMAND = None
 sys.modules["MySQLdb"] = pymysql
-
-# 2. Forcer l'initialisation de PyMySQL
 pymysql.install_as_MySQLdb()
 
-# 3. Patch de force brute sur l'exception de version de Django
+# 2. Importer les modules d'initialisation de Django
+from django.db.backends.mysql import base
 from django.db.backends.base.base import BaseDatabaseWrapper
-from django.db.utils import NotSupportedError
 
-original_init = BaseDatabaseWrapper.init_connection_state
+# 3. Court-circuiter définitivement le blocage de version de MariaDB
+def fake_check_version(*args, **kwargs):
+    pass
 
-def patched_init_connection_state(self):
-    try:
-        original_init(self)
-    except NotSupportedError as e:
-        if "MariaDB" in str(e):
-            # Si Django râle à cause de la version de MariaDB, on ignore l'erreur
-            pass
-        else:
-            raise e
+base.DatabaseFeatures.check_database_version_supported = fake_check_version
+BaseDatabaseWrapper.check_database_version_supported = fake_check_version
 
-# On injecte notre fonction modifiée directement dans le cœur de Django
-BaseDatabaseWrapper.init_connection_state = patched_init_connection_state
+# 4. INTERCEPTEUR DE REQUÊTES : Supprime le mot-clé RETURNING si Django l'injecte
+original_execute = pymysql.cursors.Cursor.execute
+
+def patched_execute(self, query, args=None):
+    if isinstance(query, str) and "RETURNING" in query:
+        # Nettoie la requête en retirant "RETURNING `id`" ou similaire en fin de ligne
+        if "RETURNING" in query:
+            query = query.split("RETURNING")[0].strip()
+    return original_execute(self, query, args)
+
+# On applique l'intercepteur directement sur le pilote MySQL
+pymysql.cursors.Cursor.execute = patched_execute
