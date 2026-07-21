@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Nexus Recruit | Accelerate Your Career</title>
+    <title>Job Search | Accelerate Your Career</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
@@ -185,7 +185,6 @@
           class="text-headline-md font-headline-md font-bold text-on-primary"
           >
           Job Search
-          <!-- Nexus Recruit -->
           </span
         >
         <nav class="hidden md:flex items-center gap-gutter">
@@ -449,17 +448,16 @@
               class="p-md bg-surface hover:shadow-lg transition-all border border-outline-variant rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-md group"
             >
               <div class="flex items-start gap-md">
-                <img
+                <!-- <img
                   class="w-12 h-12 rounded-lg object-cover bg-surface-container"
                   data-alt="A minimalist tech company logo with clean geometric shapes in deep charcoal and emerald green, set against a pristine white studio background with soft ambient lighting."
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTVWQF9STWnvVhRG3FINiVmHVu2Pn0fmskBihxdsDJQP_UXqLC5RKVbsxSrrVv1FROCm4z8pZ55PBDIoXIh1G7CyLc62z3kz_UxnQfyI0o2tMqnD99wg3WR0Y2eRVuGJ9CdfM6LEvssPtH7O3Hci967DQBsKI-tZiQnVKTr_IykQI33JyytcYnvJHki9elytBsajcNz9TrY1v5QI7X1FG1tMQ5u_5xVo5KEczgP5BhJmuXUfQTMhY7"
-                />
+                /> -->
                 <div>
                   <h3
                     class="text-headline-md font-headline-md text-on-surface group-hover:text-secondary transition-colors"
                   >
                   {{offre.title}}
-                    <!-- Senior Software Engineer, Frontend -->
                   </h3>
                   <div class="flex flex-wrap items-center gap-sm mt-xs">
                     <span
@@ -469,7 +467,6 @@
                         >business</span
                       >
                       Job Search Systems
-                      <!-- Nexus Cloud Systems -->
                     </span>
                     <span
                       class="text-body-sm text-on-surface-variant flex items-center gap-base"
@@ -478,13 +475,11 @@
                         >location_on</span
                       >
                       {{offre.country}}
-                      <!-- Amsterdam, NL (Remote) -->
                     </span>
                     <span
                       class="text-body-sm font-bold text-on-secondary-container bg-secondary-container px-xs py-0.5 rounded-full"
                       >
                       {{offre.salary_min}} - {{offre.salary_max}}
-                      <!-- $120k - $160k -->
                     </span>
                     
                   </div>
@@ -492,11 +487,11 @@
                 </div>
               </div>
               <div class="flex items-center gap-sm w-full md:w-auto">
-                <button
+                <!-- <button
                   class="flex-1 md:flex-none px-md py-xs border border-outline text-on-surface-variant hover:bg-surface-container-high transition-all rounded-lg font-bold"
                 >
                   Save
-                </button>
+                </button> -->
                 <button
                   class="flex-1 md:flex-none px-lg py-xs bg-secondary text-on-primary hover:bg-on-secondary-container transition-all rounded-lg font-bold"
                 >
@@ -510,7 +505,7 @@
             <button
               class="px-xl py-sm bg-primary-container text-on-primary rounded-lg font-bold hover:bg-tertiary-container transition-all shadow-md active:scale-95"
             >
-              Explore All Jobs
+              <a href="{% url 'liste_offres' %}">Explore All Jobs</a>
             </button>
           </div>
         </div>
@@ -526,7 +521,7 @@
           <p
             class="text-on-surface-variant text-body-lg font-body-lg max-w-2xl mx-auto"
           >
-            Nexus Recruit simplifies the job search process so you can focus on
+            JobSearch simplifies the job search process so you can focus on
             landing your dream role.
           </p>
         </div>
@@ -658,10 +653,10 @@
     >
       <div class="flex flex-col items-center md:items-start gap-xs">
         <span class="text-headline-sm font-headline-sm font-bold text-primary"
-          >Nexus Recruit</span
+          >Job Search</span
         >
         <p class="text-on-surface-variant text-body-sm font-body-sm">
-          © 2024 Nexus Recruit. All rights reserved.
+          © 2024 Job Search. All rights reserved.
         </p>
       </div>
       <div class="flex gap-md flex-wrap justify-center">

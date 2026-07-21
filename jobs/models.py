@@ -18,7 +18,6 @@ class Categories(models.Model):
 class Companies(models.Model):
     id = models.BigAutoField(primary_key=True)
     recruiter = models.ForeignKey('accounts.Users', on_delete=models.CASCADE)
-    # recruiter = models.ForeignKey('accounts.Users', models.DO_NOTHING)
     company_name = models.CharField(max_length=150)
     email = models.CharField(max_length=150, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
@@ -42,7 +41,6 @@ class Companies(models.Model):
 class Applications(models.Model):
     id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey('accounts.Users', on_delete=models.CASCADE)
-    # user = models.ForeignKey('accounts.Users', models.DO_NOTHING)
     job = models.ForeignKey('Jobs', models.DO_NOTHING)
     application_date = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=12, blank=True, null=True)
