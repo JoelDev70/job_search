@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 
+import os
 from pathlib import Path
 # import pymysql
 
@@ -20,16 +21,33 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def load_local_env(path):
+    """Charge les variables de développement depuis .env sans dépendance externe."""
+    if not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+load_local_env(BASE_DIR / ".env")
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-eem@=zi4a1q_4q$$^c7#74q&^y)%ni9#s+s64vr*97x+e^f+mr"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("Définissez DJANGO_SECRET_KEY dans le fichier .env.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",") if host.strip()]
 
 
 # Application definition
@@ -81,11 +99,11 @@ WSGI_APPLICATION = "Job_search.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'job_search_db',  # Le nom exact de votre base de données XAMPP
-        'USER': 'root',
-        'PASSWORD': '',           # Vide par défaut sur XAMPP
-        'HOST': '127.0.0.1',
-        'PORT': '4306',
+        'NAME': os.environ.get('DB_NAME', 'job_search_db'),
+        'USER': os.environ.get('DB_USER', 'root'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('DB_PORT', '4306'),
 }
 
     # "default": {
@@ -130,6 +148,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 # Configuration pour forcer Django à s'adapter aux anciennes versions de MariaDB (XAMPP)
@@ -141,9 +161,10 @@ original_create_connection = ConnectionHandler.create_connection
 def patched_create_connection(self, alias):
     conn = original_create_connection(self, alias)
     if conn.vendor == 'mysql':
-        # On désactive la fonction qui cause l'AssertionError dans bulk_create
-        conn.features.can_return_rows_from_insert = False
-        conn.features.can_return_ids_from_insert = False
+        # Django 6 utilise can_return_columns_from_insert pour bulk_create.
+        # Le forcer dans __dict__ neutralise le cached_property du backend
+        # MySQL/MariaDB sans intercepter ni réécrire les requêtes SQL.
+        conn.features.__dict__['can_return_columns_from_insert'] = False
     return conn
 
 ConnectionHandler.create_connection = patched_create_connection

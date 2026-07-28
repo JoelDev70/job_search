@@ -1,0 +1,37 @@
+{% extends "jobs/_shell.html" %}
+{% block title %}Connexion | JobSearch{% endblock %}
+{% block content %}
+<section class="max-w-md mx-auto">
+  <div class="mb-8">
+    <p class="text-sm text-primary font-bold uppercase tracking-wide">
+      JobSearch
+    </p>
+    <h1 class="text-3xl font-black mt-2">Connexion</h1>
+  </div>
+  <form
+    method="post"
+    class="bg-base-100 rounded-2xl border border-base-300 shadow-sm p-6 space-y-4"
+  >
+    {% csrf_token %}<label class="form-control"
+      ><span class="label-text font-bold">Nom d'utilisateur</span
+      ><input
+        name="username"
+        required
+        class="input input-bordered w-full" /></label
+    ><label class="form-control"
+      ><span class="label-text font-bold">Mot de passe</span
+      ><input
+        name="password"
+        type="password"
+        required
+        class="input input-bordered w-full" /></label
+    ><button class="btn btn-primary w-full">Se connecter</button>
+    <p class="text-center text-sm">
+      Pas encore de compte ?
+      <a class="link link-primary" href="{% url 'inscription' %}"
+        >Créer un compte</a
+      >
+    </p>
+  </form>
+</section>
+{% endblock %}

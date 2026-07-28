@@ -197,37 +197,37 @@
         <div class="hidden lg:flex items-center ml-lg gap-sm">
           <a
             class="text-secondary-fixed-dim font-bold border-b-2 border-secondary-fixed-dim pb-1 text-label-md"
-            href="#"
+            href="{% url 'liste_offres' %}"
             >Find Jobs</a
           >
           <a
             class="text-on-primary-container hover:text-on-primary transition-colors text-label-md"
-            href="#"
+            href="{% url 'profile_entreprise' %}"
             >Companies</a
           >
           <a
             class="text-on-primary-container hover:text-on-primary transition-colors text-label-md"
-            href="#"
+            href="{% url 'profil' %}"
             >Dashboard</a
           >
           <a
             class="text-on-primary-container hover:text-on-primary transition-colors text-label-md"
-            href="#"
+            href="{% url 'liste_offres' %}"
             >Resources</a
           >
         </div>
       </div>
       <div class="flex items-center gap-sm">
-        <button
+        <a href="{% url 'ajouter_offre' %}"
           class="hidden md:flex bg-secondary-fixed-dim text-on-secondary-fixed px-sm py-xs rounded-lg font-bold text-label-md hover:scale-95 transition-transform"
         >
           Post a Job
-        </button>
-        <button
+        </a>
+        <a href="{% url 'connexion' %}"
           class="text-on-primary px-sm py-xs text-label-md font-semibold hover:bg-primary-fixed-dim/10 transition-all rounded-lg"
         >
           Log In
-        </button>
+        </a>
         <button
           class="lg:hidden text-on-primary p-xs"
           onclick="toggleMobileFilters()"
@@ -537,11 +537,9 @@
                   >Posted 2h ago</span
                 >
               </div>
-              <button
+              <a href="{% url 'detail_offre' id=offre.id %}"
                 class="bg-secondary text-on-secondary px-lg py-xs rounded-lg font-bold text-label-md hover:bg-on-secondary-container transition-colors shadow-sm"
-              >
-                Apply
-              </button>
+              >Apply</a>
             </div>
             <span>{{offre.company}}</span>
           </article>

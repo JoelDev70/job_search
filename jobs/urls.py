@@ -4,7 +4,9 @@ from . import views
 urlpatterns = [
     path('', views.accueil_job_board, name='accueil'), 
     path('list_jobs/', views.lister_offres, name='liste_offres'), 
-    
+    path('companies/', views.profile_entreprise, name='profile_entreprise'),
+    path('offre/<int:id>/', views.detail_offre, name='detail_offre'),
+    path('offre/<int:id>/postuler/', views.postuler_offre, name='postuler_offre'),
     
     path('offre/ajouter/', views.ajouter_offre, name='ajouter_offre'),
     path('offre/modifier/<int:id>/', views.modifier_offre, name='modifier_offre'),

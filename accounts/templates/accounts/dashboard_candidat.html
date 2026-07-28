@@ -1,0 +1,139 @@
+{% extends "jobs/_shell.html" %}
+{% block title %}Tableau de bord | JobSearch{% endblock %}
+{% block content %}
+<section class="space-y-8">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+      {% if profile.photo_url %}<img
+        src="{{ profile.photo_url }}"
+        alt="Photo de profil de {{ user.username }}"
+        class="h-14 w-14 rounded-full object-cover border"
+      />{% else %}
+      <div
+        class="flex h-14 w-14 items-center justify-center rounded-full bg-[#d9fbe9] text-xl font-bold text-[#005236]"
+      >
+        {{ user.username|first|upper }}
+      </div>
+      {% endif %}
+      <div>
+        <p class="text-sm font-bold uppercase tracking-wide text-[#006c49]">
+          Espace candidat
+        </p>
+        <h1 class="text-3xl font-black mt-1">Bonjour, {{ user.username }}</h1>
+        <p class="text-[#45464d] mt-2">
+          Suivez vos candidatures et complétez votre profil.
+        </p>
+      </div>
+    </div>
+    <a
+      class="rounded-lg bg-[#006c49] px-4 py-2 text-sm font-bold text-white"
+      href="{% url 'liste_offres' %}"
+      >Rechercher une offre</a
+    >
+  </div>
+
+  <div class="grid gap-5 md:grid-cols-3">
+    <div class="rounded-2xl border border-[#c6c6cd] bg-white p-6">
+      <p class="text-sm text-[#45464d]">Candidatures envoyées</p>
+      <p class="mt-2 text-3xl font-black">{{ applications_count }}</p>
+    </div>
+    <div class="rounded-2xl border border-[#c6c6cd] bg-white p-6">
+      <p class="text-sm text-[#45464d]">Entretiens prévus</p>
+      <p class="mt-2 text-3xl font-black">{{ interviews_count }}</p>
+    </div>
+    <div class="rounded-2xl border border-[#c6c6cd] bg-white p-6">
+      <p class="text-sm text-[#45464d]">Profil complété</p>
+      <p class="mt-2 text-3xl font-black">{{ completion }}%</p>
+      <div class="mt-3 h-2 rounded-full bg-[#e0e3e5]">
+        <div class="h-2 rounded-full bg-[#006c49]"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-8 lg:grid-cols-3">
+    <div
+      class="lg:col-span-2 rounded-2xl border border-[#c6c6cd] bg-white p-6 overflow-x-auto"
+    >
+      <div class="mb-5 flex items-center justify-between">
+        <h2 class="text-xl font-bold">Mes candidatures récentes</h2>
+        <a
+          class="text-sm font-bold text-[#006c49]"
+          href="{% url 'liste_offres' %}"
+          >Voir les offres</a
+        >
+      </div>
+      {% if applications %}
+      <table class="w-full text-left text-sm">
+        <thead class="border-b border-[#c6c6cd] text-[#45464d]">
+          <tr>
+            <th class="pb-3">Offre</th>
+            <th class="pb-3">Date</th>
+            <th class="pb-3">Statut</th>
+            <th class="pb-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for application in applications %}
+          <tr class="border-b border-[#e0e3e5]">
+            <td class="py-4">
+              <p class="font-bold">{{ application.job.title }}</p>
+              <p class="text-[#45464d]">
+                {{ application.job.company.company_name }}
+              </p>
+            </td>
+            <td class="py-4">
+              {{ application.application_date|date:"d/m/Y" }}
+            </td>
+            <td class="py-4">
+              <span
+                class="rounded-full bg-[#d9fbe9] px-3 py-1 text-xs font-bold text-[#005236]"
+                >{{ application.get_status_display }}</span
+              >
+            </td>
+            <td class="py-4 text-right">
+              <a
+                class="font-bold text-[#006c49]"
+                href="{% url 'detail_offre' application.job.id %}"
+                >Voir</a
+              >
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="py-8 text-center text-[#45464d]">
+        Vous n’avez pas encore envoyé de candidature.
+      </p>
+      {% endif %}
+    </div>
+    <aside class="space-y-5">
+      <div class="rounded-2xl border border-[#c6c6cd] bg-white p-6">
+        <h2 class="text-xl font-bold">Mon profil</h2>
+        <p class="mt-2 text-sm text-[#45464d]">
+          Un profil complet augmente vos chances auprès des recruteurs.
+        </p>
+        <a
+          class="mt-5 inline-block rounded-lg border border-[#006c49] px-4 py-2 text-sm font-bold text-[#006c49]"
+          href="{% url 'profil' %}"
+          >Compléter mon profil</a
+        >
+      </div>
+      {% if recommended_job %}
+      <div class="rounded-2xl bg-[#131b2e] p-6 text-white">
+        <p class="text-sm font-bold text-[#6ffbbe]">Offre recommandée</p>
+        <h2 class="mt-2 text-xl font-bold">{{ recommended_job.title }}</h2>
+        <p class="mt-1 text-[#bec6e0]">
+          {{ recommended_job.company.company_name }}
+        </p>
+        <a
+          class="mt-5 inline-block rounded-lg bg-[#6ffbbe] px-4 py-2 text-sm font-bold text-[#002113]"
+          href="{% url 'detail_offre' recommended_job.id %}"
+          >Découvrir l’offre</a
+        >
+      </div>
+      {% endif %}
+    </aside>
+  </div>
+</section>
+{% endblock %}

@@ -36,15 +36,6 @@ def fake_check_version(*args, **kwargs):
 base.DatabaseFeatures.check_database_version_supported = fake_check_version
 BaseDatabaseWrapper.check_database_version_supported = fake_check_version
 
-# 4. INTERCEPTEUR DE REQUÊTES : Supprime le mot-clé RETURNING si Django l'injecte
-original_execute = pymysql.cursors.Cursor.execute
-
-def patched_execute(self, query, args=None):
-    if isinstance(query, str) and "RETURNING" in query:
-        # Nettoie la requête en retirant "RETURNING `id`" ou similaire en fin de ligne
-        if "RETURNING" in query:
-            query = query.split("RETURNING")[0].strip()
-    return original_execute(self, query, args)
-
-# On applique l'intercepteur directement sur le pilote MySQL
-pymysql.cursors.Cursor.execute = patched_execute
+# Django doit savoir que le serveur utilisé ne renvoie pas les colonnes
+# d'un INSERT. Il ne faut surtout pas supprimer RETURNING au niveau du
+# curseur : Django attendrait alors des lignes qui n'existent plus.

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Job Search{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-screen bg-[#f7f9fb] text-[#191c1e] font-sans">
+    <header
+      class="sticky top-0 z-50 h-16 bg-[#131b2e] border-b border-[#454b60] shadow-sm flex items-center justify-between px-4 md:px-10"
+    >
+      <a
+        href="{% url 'accueil' %}"
+        class="text-white text-2xl font-bold tracking-tight"
+        >Job Search</a
+      >
+      <nav class="hidden md:flex items-center gap-7 text-sm font-semibold">
+        <a
+          href="{% url 'liste_offres' %}"
+          class="text-[#6ffbbe] hover:text-white"
+          >Find Jobs</a
+        ><a
+          href="{% url 'profile_entreprise' %}"
+          class="text-[#7c839b] hover:text-white"
+          >Companies</a
+        >{% if request.session.user_role == "JOB_SEEKER" %}<a href="{% url 'dashboard_candidat' %}" class="text-[#7c839b] hover:text-white">Dashboard</a>{% else %}<a href="{% url 'profil' %}" class="text-[#7c839b] hover:text-white">Profil</a>{% endif %}
+      </nav>
+      <div class="flex items-center gap-3">
+        {% if request.session.user_role == "ADMIN" %}<a href="/admin/" class="text-white text-sm">Admin</a>{% endif %}{% if request.session.user_id %}<a
+          href="{% url 'deconnexion' %}"
+          class="text-white text-sm"
+          >Log out</a
+        >{% else %}<a href="{% url 'connexion' %}" class="text-white text-sm"
+          >Log in</a
+        >{% endif %}{% if request.session.user_role == "ADMIN" or request.session.user_role == "RECRUITER" %}<a
+          href="{% url 'ajouter_offre' %}"
+          class="rounded-lg bg-[#006c49] text-white px-4 py-2 text-sm font-bold"
+          >Post a Job</a>{% endif %}
+      </div>
+    </header>
+    {% if messages %}
+    <div class="max-w-6xl mx-auto px-4 pt-5">
+      {% for message in messages %}
+      <div class="rounded-lg bg-[#d9fbe9] text-[#005236] px-4 py-3 mb-2">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <main class="max-w-6xl mx-auto w-full px-4 md:px-8 py-10">
+      {% block content %}{% endblock %}
+    </main>
+    <footer
+      class="border-t border-[#c6c6cd] mt-12 py-8 text-center text-sm text-[#45464d]"
+    >
+      © 2026 Job Search · La plateforme moderne de recrutement.
+    </footer>
+  </body>
+</html>

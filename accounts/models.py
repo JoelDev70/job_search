@@ -11,11 +11,13 @@ class Notifications(models.Model):
     created_at = models.DateTimeField()
 
     def __str__(self):
-        return self.title
+        return self.title or "Notification"
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'notifications'
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
 
 
 class ProfileSkills(models.Model):
@@ -25,10 +27,10 @@ class ProfileSkills(models.Model):
     level = models.CharField(max_length=12, blank=True, null=True)
 
     def __str__(self):
-        return self.skill
+        return str(self.skill)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'profile_skills'
 
 
@@ -38,7 +40,13 @@ class Profiles(models.Model):
 
     user = models.OneToOneField('Users', models.DO_NOTHING)
     date_birth = models.DateField(blank=True, null=True)
-    gender = models.CharField(max_length=6, blank=True, null=True)
+    GENDER_CHOICES = (
+        ("MALE", "Homme"),
+        ("FEMALE", "Femme"),
+        ("OTHER", "Autre"),
+    )
+
+    gender = models.CharField(max_length=6, choices=GENDER_CHOICES, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)
     province = models.CharField(max_length=100, blank=True, null=True)
@@ -48,16 +56,27 @@ class Profiles(models.Model):
     expected_salary = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     availability = models.CharField(max_length=100, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
-    photo = models.CharField(max_length=255, blank=True, null=True)
+    photo = models.FileField(upload_to="profiles/", max_length=255, blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
     def __str__(self):
         return self.user.username
 
+    @property
+    def photo_url(self):
+        """Fonctionne aussi avec les anciennes photos enregistrées comme URL."""
+        if not self.photo:
+            return ""
+        if self.photo.name.startswith(("http://", "https://")):
+            return self.photo.name
+        return self.photo.url
+
     class Meta:
-        managed = False
+        managed = True
         db_table = 'profiles'
+        verbose_name = 'Profile'
+        verbose_name_plural = 'Profiles'
 
 
 class Skills(models.Model):
@@ -70,11 +89,19 @@ class Skills(models.Model):
         return self.name
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'skills'
+        verbose_name = 'Skill'
+        verbose_name_plural = 'Skills'
 
 
 class Users(models.Model):
+    ROLE_CHOICES = (
+        ("ADMIN", "Administrateur"),
+        ("RECRUITER", "Recruteur"),
+        ("JOB_SEEKER", "Candidat"),
+    )
+
     id = models.BigAutoField(primary_key=True)
     username = models.CharField(unique=True, max_length=100)
     first_name = models.CharField(max_length=100)
@@ -82,7 +109,7 @@ class Users(models.Model):
     email = models.CharField(unique=True, max_length=150)
     password = models.CharField(max_length=255)
     phone = models.CharField(max_length=20, blank=True, null=True)
-    role = models.CharField(max_length=10)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="JOB_SEEKER")
     is_active = models.IntegerField(blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
@@ -91,5 +118,7 @@ class Users(models.Model):
         return self.username
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'users'
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'

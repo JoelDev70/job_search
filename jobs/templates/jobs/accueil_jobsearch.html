@@ -190,37 +190,29 @@
         <nav class="hidden md:flex items-center gap-gutter">
           <a
             class="text-secondary-fixed-dim font-bold border-b-2 border-secondary-fixed-dim pb-1 text-label-md font-label-md"
-            href="#"
+            href="{% url 'liste_offres' %}"
             >Find Jobs</a
           >
           <a
             class="text-on-primary-container hover:text-on-primary transition-colors text-label-md font-label-md"
-            href="#"
+            href="{% url 'profile_entreprise' %}"
             >Companies</a
           >
           <a
             class="text-on-primary-container hover:text-on-primary transition-colors text-label-md font-label-md"
-            href="#"
+            href="{% url 'profil' %}"
             >Dashboard</a
           >
           <a
             class="text-on-primary-container hover:text-on-primary transition-colors text-label-md font-label-md"
-            href="#"
+            href="{% url 'liste_offres' %}"
             >Resources</a
           >
         </nav>
       </div>
       <div class="flex items-center gap-sm">
-        <button
-          class="hidden sm:block text-on-primary-container hover:text-on-primary font-label-md text-label-md transition-all"
-        >
-          Log In
-        </button>
-        <button
-          class="bg-secondary text-on-primary px-sm py-xs rounded-lg font-bold hover:bg-on-secondary-container transition-all text-label-md font-label-md active:scale-95 duration-100"
-        >
-          Post a Job
-        </button>
+        {% if request.session.user_id %}<a href="{% url 'deconnexion' %}" class="hidden sm:block text-on-primary-container hover:text-on-primary font-label-md text-label-md transition-all">Log out</a>{% else %}<a href="{% url 'connexion' %}" class="hidden sm:block text-on-primary-container hover:text-on-primary font-label-md text-label-md transition-all">Log In</a>{% endif %}
+        <a href="{% url 'ajouter_offre' %}" class="bg-secondary text-on-primary px-sm py-xs rounded-lg font-bold hover:bg-on-secondary-container transition-all text-label-md font-label-md active:scale-95 duration-100">Post a Job</a>
       </div>
     </header>
     <main class="w-full">
@@ -492,11 +484,9 @@
                 >
                   Save
                 </button> -->
-                <button
+                <a href="{% url 'detail_offre' id=offre.id %}"
                   class="flex-1 md:flex-none px-lg py-xs bg-secondary text-on-primary hover:bg-on-secondary-container transition-all rounded-lg font-bold"
-                >
-                  Apply Now
-                </button>
+                >Apply Now</a>
               </div>
             </div>
                 {% endfor %}

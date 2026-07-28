@@ -1,5 +1,6 @@
 from django.db import models
-from accounts.models import Users, Skills 
+from accounts.models import Users, Skills
+from django.utils import timezone
 
 # Create your models here.
 class Categories(models.Model):
@@ -11,8 +12,10 @@ class Categories(models.Model):
         return self.name
     
     class Meta:
-        managed = False
+        managed = True
         db_table = 'categories'
+        verbose_name = 'Categorie'
+        verbose_name_plural = 'Categories'
 
 
 class Companies(models.Model):
@@ -34,16 +37,26 @@ class Companies(models.Model):
         return self.company_name
     
     class Meta:
-        managed = False
+        managed = True
         db_table = 'companies'
+        verbose_name = 'Compagnie'
+        verbose_name_plural = 'Compagnies'
 
 
 class Applications(models.Model):
+    STATUS_CHOICES = (
+        ("PENDING", "En attente"),
+        ("UNDER_REVIEW", "En cours d'examen"),
+        ("INTERVIEW", "Entretien"),
+        ("ACCEPTED", "Acceptée"),
+        ("REJECTED", "Refusée"),
+    )
+
     id = models.BigAutoField(primary_key=True)
     user = models.ForeignKey('accounts.Users', on_delete=models.CASCADE)
     job = models.ForeignKey('Jobs', models.DO_NOTHING)
     application_date = models.DateTimeField(blank=True, null=True)
-    status = models.CharField(max_length=12, blank=True, null=True)
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default="PENDING")
     matching_score = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     cv = models.CharField(max_length=255, blank=True, null=True)
     cover_letter = models.TextField(blank=True, null=True)
@@ -52,8 +65,10 @@ class Applications(models.Model):
         return self.user.username
     
     class Meta:
-        managed = False
+        managed = True
         db_table = 'applications'
+        verbose_name = 'Application'
+        verbose_name_plural = 'Applications'
 
 class JobSkills(models.Model):
     pk = models.CompositePrimaryKey('job_id', 'skill_id')
@@ -63,7 +78,7 @@ class JobSkills(models.Model):
     required = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'job_skills'
 
 
@@ -83,13 +98,15 @@ class Jobs(models.Model):
     education_required = models.CharField(max_length=100, blank=True, null=True)
     vacancies = models.IntegerField(blank=True, null=True)
     deadline = models.DateField(blank=True, null=True)
-    status = models.CharField(max_length=8, blank=True, null=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
+    status = models.CharField(max_length=20, default="published")
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.title
     
     class Meta:
-        managed = False
+        managed = True
         db_table = 'jobs'
+        verbose_name = 'Job'
+        verbose_name_plural = 'Jobs'
