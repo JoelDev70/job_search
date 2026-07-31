@@ -1,0 +1,39 @@
+{% extends "jobs/_shell.html" %}
+{% block title %}Tableau de bord recruteur | JobSearch{% endblock %}
+{% block content %}
+<section class="space-y-8">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-sm font-bold uppercase tracking-wide text-[#006c49]">Espace recruteur</p>
+      <h1 class="mt-1 text-3xl font-black">Bonjour, {{ user.first_name|default:user.username }}</h1>
+      {% if company %}<p class="mt-2 text-[#45464d]">Pilotez le recrutement de <strong>{{ company.company_name }}</strong>.</p>{% else %}<p class="mt-2 text-[#45464d]">Commencez par créer la fiche de votre entreprise.</p>{% endif %}
+    </div>
+    {% if company %}<a href="{% url 'ajouter_offre' %}" class="inline-flex items-center justify-center rounded-lg bg-[#006c49] px-4 py-2 text-sm font-bold text-white hover:bg-[#005236]">Publier une offre</a>{% else %}<a href="{% url 'profile_recruteur' %}" class="inline-flex items-center justify-center rounded-lg bg-[#006c49] px-4 py-2 text-sm font-bold text-white hover:bg-[#005236]">Créer mon entreprise</a>{% endif %}
+  </div>
+
+  {% if not company %}
+  <div class="rounded-2xl border border-[#6ffbbe] bg-[#d9fbe9] p-6">
+    <h2 class="text-xl font-bold text-[#002113]">Votre espace entreprise n’est pas encore configuré</h2>
+    <p class="mt-2 max-w-2xl text-[#005236]">Après votre inscription comme recruteur, renseignez les informations de votre entreprise. Vous pourrez ensuite publier des offres et suivre les candidatures.</p>
+    <a href="{% url 'profile_recruteur' %}" class="mt-4 inline-block rounded-lg bg-[#006c49] px-4 py-2 text-sm font-bold text-white">Configurer mon entreprise</a>
+  </div>
+  {% endif %}
+
+  <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <article class="rounded-2xl border border-[#c6c6cd] bg-white p-5"><p class="text-sm text-[#45464d]">Offres actives</p><p class="mt-2 text-3xl font-black">{{ active_jobs_count }}</p><p class="mt-1 text-xs text-[#45464d]">sur {{ jobs_count }} offre{{ jobs_count|pluralize }}</p></article>
+    <article class="rounded-2xl border border-[#c6c6cd] bg-white p-5"><p class="text-sm text-[#45464d]">Candidatures reçues</p><p class="mt-2 text-3xl font-black">{{ applications_count }}</p><p class="mt-1 text-xs text-[#45464d]">toutes vos offres confondues</p></article>
+    <article class="rounded-2xl border border-[#c6c6cd] bg-white p-5"><p class="text-sm text-[#45464d]">À examiner</p><p class="mt-2 text-3xl font-black">{{ pending_applications_count }}</p><p class="mt-1 text-xs text-[#45464d]">en attente ou en cours d’examen</p></article>
+    <article class="rounded-2xl border border-[#c6c6cd] bg-white p-5"><p class="text-sm text-[#45464d]">Entretiens</p><p class="mt-2 text-3xl font-black">{{ interviews_count }}</p><p class="mt-1 text-xs text-[#45464d]">candidats à rencontrer</p></article>
+  </div>
+
+  <div class="grid gap-7 lg:grid-cols-3">
+    <div class="overflow-x-auto rounded-2xl border border-[#c6c6cd] bg-white p-6 lg:col-span-2">
+      <div class="mb-5 flex items-center justify-between"><h2 class="text-xl font-bold">Candidatures récentes</h2><span class="text-sm text-[#45464d]">Les 6 dernières</span></div>
+      {% if recent_applications %}
+      <table class="w-full min-w-[620px] text-left text-sm"><thead class="border-b border-[#c6c6cd] text-[#45464d]"><tr><th class="pb-3">Candidat</th><th class="pb-3">Offre</th><th class="pb-3">Date</th><th class="pb-3">Statut</th></tr></thead><tbody>{% for application in recent_applications %}<tr class="border-b border-[#e0e3e5]"><td class="py-4 font-semibold">{{ application.user.username }}</td><td class="py-4"><a class="font-semibold text-[#006c49]" href="{% url 'detail_offre' application.job.id %}">{{ application.job.title }}</a><p class="text-xs text-[#45464d]">{{ application.job.company.company_name }}</p></td><td class="py-4">{{ application.application_date|date:"d/m/Y" }}</td><td class="py-4"><span class="rounded-full bg-[#d9fbe9] px-3 py-1 text-xs font-bold text-[#005236]">{{ application.get_status_display }}</span></td></tr>{% endfor %}</tbody></table>
+      {% else %}<p class="py-10 text-center text-[#45464d]">Les candidatures reçues apparaîtront ici.</p>{% endif %}
+    </div>
+    <aside class="rounded-2xl border border-[#c6c6cd] bg-white p-6"><h2 class="text-xl font-bold">Mes offres</h2>{% if recent_jobs %}<ul class="mt-4 divide-y divide-[#e0e3e5]">{% for job in recent_jobs %}<li class="py-4 first:pt-0"><a href="{% url 'detail_offre' job.id %}" class="font-bold text-[#006c49]">{{ job.title }}</a><p class="mt-1 text-sm text-[#45464d]">{{ job.applications_total }} candidature{{ job.applications_total|pluralize }}</p><a href="{% url 'modifier_offre' job.id %}" class="mt-2 inline-block text-sm font-bold text-[#006c49]">Modifier</a></li>{% endfor %}</ul>{% else %}<p class="mt-3 text-sm text-[#45464d]">Publiez votre première offre pour démarrer.</p>{% endif %}</aside>
+  </div>
+</section>
+{% endblock %}

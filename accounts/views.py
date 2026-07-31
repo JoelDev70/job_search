@@ -11,6 +11,8 @@ from jobs.models import Applications, Jobs
 from .forms import ProfileForm
 from .models import Profiles, Users
 
+PUBLIC_ROLES = {"JOB_SEEKER", "RECRUITER"}
+
 
 def connexion(request):
     if request.session.get("user_id"):
@@ -25,7 +27,7 @@ def connexion(request):
             request.session["user_role"] = user.role
             if user.role == "JOB_SEEKER":
                 return redirect("dashboard_candidat")
-            return redirect(request.GET.get("next", "accueil"))
+            return redirect(request.GET.get("next", "dashboard_recruteur" if user.role == "RECRUITER" else "accueil"))
         messages.error(request, "Identifiants invalides.")
     return render(request, "accounts/connexion.html")
 
@@ -35,7 +37,8 @@ def inscription(request):
         username = request.POST.get("username", "").strip()
         email = request.POST.get("email", "").strip()
         password = request.POST.get("password", "")
-        if not username or not email or len(password) < 8:
+        role = request.POST.get("role", "JOB_SEEKER")
+        if not username or not email or len(password) < 8 or role not in PUBLIC_ROLES:
             messages.error(request, "Renseignez tous les champs et utilisez un mot de passe d'au moins 8 caractères.")
             return render(request, "accounts/inscription.html")
         try:
@@ -44,6 +47,7 @@ def inscription(request):
             messages.error(request, "Saisissez une adresse e-mail valide.")
             return render(request, "accounts/inscription.html")
 
+        # ADMIN ne peut pas être choisi dans un formulaire public.
         # La base impose les valeurs enum ADMIN, RECRUITER et JOB_SEEKER.
         # La création du profil dans la même transaction évite un compte incomplet.
         if Users.objects.filter(username=username).exists() or Users.objects.filter(email=email).exists():
@@ -55,7 +59,7 @@ def inscription(request):
                     username=username,
                     email=email,
                     password=make_password(password),
-                    role="JOB_SEEKER",
+                    role=role,
                     is_active=1,
                     first_name="",
                     last_name="",
@@ -66,7 +70,7 @@ def inscription(request):
             request.session["user_id"] = user.id
             request.session["username"] = user.username
             request.session["user_role"] = user.role
-            return redirect("dashboard_candidat")
+            return redirect("dashboard_candidat" if role == "JOB_SEEKER" else "profile_recruteur")
     return render(request, "accounts/inscription.html")
 
 
@@ -80,6 +84,8 @@ def profil(request):
     if not user_id:
         return redirect("connexion")
     user = Users.objects.get(id=user_id)
+    if user.role == "RECRUITER":
+        return redirect("profile_recruteur")
     profile, _ = Profiles.objects.get_or_create(user=user, defaults={"created_at": timezone.now(), "updated_at": timezone.now()})
     form = ProfileForm(request.POST or None, request.FILES or None, instance=profile)
     if request.method == "POST" and form.is_valid():

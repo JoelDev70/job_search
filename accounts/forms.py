@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Profiles
+from .models import Profiles, Users
 
 
 class ProfileForm(forms.ModelForm):
@@ -32,3 +32,17 @@ class ProfileForm(forms.ModelForm):
         if content_type and not content_type.startswith("image/"):
             raise forms.ValidationError("Choisissez un fichier image.")
         return photo
+
+
+class RecruiterAccountForm(forms.ModelForm):
+    """Coordonnées du compte, séparées des informations de l'entreprise."""
+
+    class Meta:
+        model = Users
+        fields = ["first_name", "last_name", "email", "phone"]
+        widgets = {
+            "first_name": forms.TextInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]"}),
+            "last_name": forms.TextInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]"}),
+            "email": forms.EmailInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]"}),
+            "phone": forms.TextInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]"}),
+        }

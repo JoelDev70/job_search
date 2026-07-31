@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Applications, Jobs
+from .models import Applications, Companies, Jobs
 
 
 class ApplicationForm(forms.ModelForm):
@@ -28,3 +28,22 @@ class JobForm(forms.ModelForm):
         if minimum is not None and maximum is not None and minimum > maximum:
             self.add_error("salary_max", "Le salaire maximum doit être supérieur au minimum.")
         return cleaned
+
+
+class CompanyForm(forms.ModelForm):
+    """Informations publiques et de contact de l'entreprise du recruteur."""
+
+    class Meta:
+        model = Companies
+        fields = ["company_name", "email", "phone", "website", "address", "city", "country", "description", "logo"]
+        widgets = {
+            "company_name": forms.TextInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]", "placeholder": "Nom de l'entreprise"}),
+            "email": forms.EmailInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]", "placeholder": "contact@entreprise.com"}),
+            "phone": forms.TextInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]"}),
+            "website": forms.URLInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]", "placeholder": "https://www.entreprise.com"}),
+            "address": forms.TextInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]"}),
+            "city": forms.TextInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]"}),
+            "country": forms.TextInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]"}),
+            "description": forms.Textarea(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]", "rows": 5, "placeholder": "Présentez votre entreprise, sa mission et sa culture..."}),
+            "logo": forms.URLInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]", "placeholder": "URL du logo (facultatif)"}),
+        }

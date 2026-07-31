@@ -1,10 +1,11 @@
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from .forms import ApplicationForm, JobForm
+from .forms import ApplicationForm, CompanyForm, JobForm
+from accounts.forms import RecruiterAccountForm
 from .models import Applications, Categories, Companies, Jobs
 from accounts.models import Users
 
@@ -43,6 +44,73 @@ def _require_account(request):
     return None
 
 
+def _recruiter_user(request):
+    """Retourne le recruteur connecté ou une redirection adaptée."""
+    redirect_response = _require_account(request)
+    if redirect_response:
+        return None, redirect_response
+    user = get_object_or_404(Users, id=request.session["user_id"])
+    if user.role not in ("ADMIN", "RECRUITER"):
+        messages.error(request, "Cet espace est réservé aux recruteurs.")
+        return None, redirect("liste_offres")
+    return user, None
+
+
+def dashboard_recruteur(request):
+    user, redirect_response = _recruiter_user(request)
+    if redirect_response:
+        return redirect_response
+
+    companies = Companies.objects.filter(recruiter=user)
+    jobs = Jobs.objects.filter(company__in=companies).select_related("company").order_by("-created_at")
+    applications = Applications.objects.filter(job__company__in=companies).select_related("user", "job__company").order_by("-application_date")
+    return render(request, "jobs/dashboard_recruteur.html", {
+        "user": user,
+        "company": companies.first(),
+        "active_jobs_count": jobs.filter(status__in=("published", "active")).count(),
+        "jobs_count": jobs.count(),
+        "applications_count": applications.count(),
+        "pending_applications_count": applications.filter(status__in=("PENDING", "UNDER_REVIEW")).count(),
+        "interviews_count": applications.filter(status="INTERVIEW").count(),
+        "recent_applications": applications[:6],
+        "recent_jobs": jobs.annotate(applications_total=Count("applications")).all()[:5],
+    })
+
+
+def profile_recruteur(request):
+    user, redirect_response = _recruiter_user(request)
+    if redirect_response:
+        return redirect_response
+    company = Companies.objects.filter(recruiter=user).first()
+    account_form = RecruiterAccountForm(instance=user, prefix="account")
+    company_form = CompanyForm(instance=company, prefix="company")
+
+    if request.method == "POST":
+        form_type = request.POST.get("form_type")
+        if form_type == "account":
+            account_form = RecruiterAccountForm(request.POST, instance=user, prefix="account")
+            if account_form.is_valid():
+                account = account_form.save(commit=False)
+                account.updated_at = timezone.now()
+                account.save()
+                messages.success(request, "Vos coordonnées de recruteur ont été enregistrées.")
+                return redirect("profile_recruteur")
+        elif form_type == "company":
+            company_form = CompanyForm(request.POST, instance=company, prefix="company")
+            if company_form.is_valid():
+                saved_company = company_form.save(commit=False)
+                saved_company.recruiter = user
+                saved_company.updated_at = timezone.now()
+                if not saved_company.pk:
+                    saved_company.created_at = timezone.now()
+                saved_company.save()
+                messages.success(request, "Votre entreprise est maintenant prête à publier des offres.")
+                return redirect("dashboard_recruteur")
+        else:
+            messages.error(request, "La demande est invalide.")
+    return render(request, "jobs/profile_recruteur.html", {"user": user, "company": company, "account_form": account_form, "company_form": company_form})
+
+
 def ajouter_offre(request):
     redirect_response = _require_account(request)
     if redirect_response:
@@ -51,6 +119,9 @@ def ajouter_offre(request):
     if user.role not in ("ADMIN", "RECRUITER"):
         messages.error(request, "Seuls les recruteurs peuvent publier une offre.")
         return redirect("liste_offres")
+    if user.role == "RECRUITER" and not Companies.objects.filter(recruiter=user).exists():
+        messages.info(request, "Créez d'abord votre entreprise avant de publier une offre.")
+        return redirect("profile_recruteur")
     form = JobForm(request.POST or None)
     form.fields["company"].queryset = Companies.objects.filter(recruiter=user)
     if request.method == "POST" and form.is_valid():

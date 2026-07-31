@@ -28,19 +28,44 @@
           href="{% url 'profile_entreprise' %}"
           class="text-[#7c839b] hover:text-white"
           >Companies</a
-        >{% if request.session.user_role == "JOB_SEEKER" %}<a href="{% url 'dashboard_candidat' %}" class="text-[#7c839b] hover:text-white">Dashboard</a>{% else %}<a href="{% url 'profil' %}" class="text-[#7c839b] hover:text-white">Profil</a>{% endif %}
+        >{% if request.session.user_role == "JOB_SEEKER" %}<a
+          href="{% url 'dashboard_candidat' %}"
+          class="text-[#7c839b] hover:text-white"
+          >Dashboard</a
+        >{% elif request.session.user_role == "RECRUITER" %}<a
+          href="{% url 'dashboard_recruteur' %}"
+          class="text-[#7c839b] hover:text-white"
+          >Tableau de bord</a
+        ><a
+          href="{% url 'profile_recruteur' %}"
+          class="text-[#7c839b] hover:text-white"
+          >Mon entreprise</a
+        >{% else %}<a
+          href="{% url 'profil' %}"
+          class="text-[#7c839b] hover:text-white"
+          >Profil</a
+        >{% endif %}
       </nav>
       <div class="flex items-center gap-3">
-        {% if request.session.user_role == "ADMIN" %}<a href="/admin/" class="text-white text-sm">Admin</a>{% endif %}{% if request.session.user_id %}<a
+        {% if request.session.user_role == "ADMIN" %}<a
+          href="/admin/"
+          class="text-white text-sm"
+          >Admin</a
+        >{% endif %}{% if request.session.user_id %}<a
           href="{% url 'deconnexion' %}"
           class="text-white text-sm"
           >Log out</a
         >{% else %}<a href="{% url 'connexion' %}" class="text-white text-sm"
           >Log in</a
-        >{% endif %}{% if request.session.user_role == "ADMIN" or request.session.user_role == "RECRUITER" %}<a
+        >{% endif %}{% if request.session.user_role == "ADMIN" %}<a
           href="{% url 'ajouter_offre' %}"
           class="rounded-lg bg-[#006c49] text-white px-4 py-2 text-sm font-bold"
-          >Post a Job</a>{% endif %}
+          >Post a Job</a
+        >{% elif request.session.user_role == "RECRUITER" %}<a
+          href="{% url 'ajouter_offre' %}"
+          class="rounded-lg bg-[#006c49] text-white px-4 py-2 text-sm font-bold"
+          >Post a Job</a
+        >{% endif %}
       </div>
     </header>
     {% if messages %}

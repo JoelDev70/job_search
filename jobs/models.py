@@ -74,7 +74,6 @@ class JobSkills(models.Model):
     pk = models.CompositePrimaryKey('job_id', 'skill_id')
     job = models.ForeignKey('Jobs', models.DO_NOTHING)
     skill = models.ForeignKey('accounts.Skills', on_delete=models.CASCADE)
-    # skill = models.ForeignKey('accounts.Skills', models.DO_NOTHING)
     required = models.IntegerField(blank=True, null=True)
 
     class Meta:
