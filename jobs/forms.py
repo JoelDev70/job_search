@@ -1,16 +1,43 @@
 from django import forms
+from django.core.files.storage import default_storage
 
 from .models import Applications, Companies, Jobs
 
 
 class ApplicationForm(forms.ModelForm):
+    cover_letter = forms.FileField(
+        label="Lettre de motivation (PDF)",
+        widget=forms.ClearableFileInput(attrs={"class": "block w-full rounded-lg border border-[#c6c6cd] p-2", "accept": "application/pdf,.pdf"}),
+    )
     class Meta:
         model = Applications
-        fields = ["cover_letter", "cv"]
+        fields = ["cv", "cover_letter"]
         widgets = {
-            "cover_letter": forms.Textarea(attrs={"class": "textarea textarea-bordered w-full", "rows": 7, "placeholder": "Présentez votre motivation..."}),
-            "cv": forms.TextInput(attrs={"class": "input input-bordered w-full", "placeholder": "Lien vers votre CV (PDF)"}),
+            "cv": forms.ClearableFileInput(attrs={"class": "block w-full rounded-lg border border-[#c6c6cd] p-2", "accept": "application/pdf,.pdf"}),
         }
+
+    def clean(self):
+        cleaned = super().clean()
+        for field in ("cv", "cover_letter"):
+            document = cleaned.get(field)
+            if not document:
+                self.add_error(field, "Ce document PDF est obligatoire.")
+                continue
+            if getattr(document, "size", 0) > 5 * 1024 * 1024:
+                self.add_error(field, "Le fichier ne doit pas dépasser 5 Mo.")
+            name = getattr(document, "name", "").lower()
+            content_type = getattr(document, "content_type", "")
+            if not name.endswith(".pdf") or (content_type and content_type != "application/pdf"):
+                self.add_error(field, "Choisissez un fichier PDF.")
+        return cleaned
+
+    def save(self, commit=True):
+        application = super().save(commit=False)
+        document = self.cleaned_data["cover_letter"]
+        application.cover_letter = default_storage.save("applications/cover_letters/" + document.name, document)
+        if commit:
+            application.save()
+        return application
 
 
 class JobForm(forms.ModelForm):
@@ -45,5 +72,15 @@ class CompanyForm(forms.ModelForm):
             "city": forms.TextInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]"}),
             "country": forms.TextInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]"}),
             "description": forms.Textarea(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]", "rows": 5, "placeholder": "Présentez votre entreprise, sa mission et sa culture..."}),
-            "logo": forms.URLInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]", "placeholder": "URL du logo (facultatif)"}),
+            "logo": forms.ClearableFileInput(attrs={"class": "w-full rounded-lg border-[#c6c6cd] px-3 py-2 focus:border-[#006c49] focus:ring-[#006c49]", "accept": "image/*"}),
         }
+
+    def clean_logo(self):
+        logo = self.cleaned_data.get("logo")
+        if not logo:
+            return logo
+        if logo.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("Le logo ne doit pas dépasser 5 Mo.")
+        if getattr(logo, "content_type", "") and not logo.content_type.startswith("image/"):
+            raise forms.ValidationError("Choisissez un fichier image.")
+        return logo

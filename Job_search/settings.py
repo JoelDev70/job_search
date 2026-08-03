@@ -42,12 +42,16 @@ load_local_env(BASE_DIR / ".env")
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 if not SECRET_KEY:
-    raise RuntimeError("Définissez DJANGO_SECRET_KEY dans le fichier .env.")
+    raise RuntimeError("DJANGO_SECRET_KEY dans le fichier .env.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = [host.strip() for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",") if host.strip()]
+# ALLOWED_HOSTS = [host.strip() for host in os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",") if host.strip()]
+ALLOWED_HOSTS = ['192.168.1.207','localhost','127.0.0.1']
+# ALLOWED_HOSTS = ['10.42.0.1','localhost','127.0.0.1']
+
+
 
 
 # Application definition

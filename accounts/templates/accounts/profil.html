@@ -1,30 +1,52 @@
-{% extends "jobs/_shell.html" %}
-{% block title %}Mon profil | JobSearch{% endblock %}
-{% block content %}
+{% extends "jobs/_shell.html" %} {% block title %}Mon
+profil|JobSearch{%endblock%} {% block content %}
 <section class="max-w-3xl mx-auto">
   <h1 class="text-3xl font-black mb-6">Mon profil</h1>
   <div class="bg-base-100 rounded-2xl border border-base-300 shadow-sm p-6">
     <div class="mb-4 flex items-center gap-4">
-      {% if profile.photo_url %}<img src="{{ profile.photo_url }}" alt="Photo de profil de {{ user.username }}" class="h-20 w-20 rounded-full object-cover border" />{% else %}<div class="flex h-20 w-20 items-center justify-center rounded-full bg-[#d9fbe9] text-2xl font-bold text-[#005236]">{{ user.username|first|upper }}</div>{% endif %}
-      <div><p class="text-sm text-[#45464d]">Photo de profil</p><p class="text-xs text-[#45464d]">JPG, PNG ou WebP — 5 Mo maximum</p></div>
+      {% if profile.photo_url %}<img
+        src="{{ profile.photo_url }}"
+        alt="Photo de profil de {{ user.username }}"
+        class="h-20 w-20 rounded-full object-cover border"
+      />{% else %}
+      <div
+        class="flex h-20 w-20 items-center justify-center rounded-full bg-[#d9fbe9] text-2xl font-bold text-[#005236]"
+      >
+        {{ user.username|first|upper }}
+      </div>
+      {% endif %}
+      <div>
+        <p class="text-sm text-[#45464d]">Photo de profil</p>
+        <p class="text-xs text-[#45464d]">JPG, PNG ou WebP — 5 Mo maximum</p>
+      </div>
     </div>
     <p class="text-xl font-bold">{{ user.username }}</p>
     <p class="opacity-60">{{ user.email }}</p>
     <div class="divider"></div>
     <p>
-      {{ profile.bio|default:"Complétez votre profil pour augmenter vos chances." }}
+      {{ profile.bio|default:"Complétez votre profil pour augmenter vos
+      chances." }}
     </p>
   </div>
-  <form method="post" enctype="multipart/form-data" class="bg-base-100 rounded-2xl border border-base-300 shadow-sm p-6 mt-6 space-y-4">
+  <form
+    method="post"
+    enctype="multipart/form-data"
+    class="bg-base-100 rounded-2xl border border-base-300 shadow-sm p-6 mt-6 space-y-4"
+  >
     {% csrf_token %}
     <h2 class="text-xl font-bold">Compléter mon profil</h2>
     {% for field in form %}
     <div class="form-control">
-      <label class="label"><span class="label-text font-semibold">{{ field.label }}</span></label>
-      {{ field }}{% if field.errors %}<p class="text-error text-sm">{{ field.errors|striptags }}</p>{% endif %}
+      <label class="label"
+        ><span class="label-text font-semibold">{{ field.label }}</span></label
+      >{{ field }}{% if field.errors %}
+      <p class="text-error text-sm">{{ field.errors|striptags }}</p>
+      {% endif %}
     </div>
     {% endfor %}
-    <button class="btn btn-primary" type="submit">Enregistrer mon profil</button>
+    <button class="btn btn-primary" type="submit">
+      Enregistrer mon profil
+    </button>
   </form>
 </section>
 {% endblock %}

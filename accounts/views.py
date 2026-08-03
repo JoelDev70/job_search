@@ -3,6 +3,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
@@ -108,7 +109,7 @@ def dashboard_candidat(request):
 
     applications = Applications.objects.filter(user=user).select_related("job__company").order_by("-application_date")
     applied_job_ids = applications.values_list("job_id", flat=True)
-    recommended_job = Jobs.objects.filter(status__in=("published", "active")).exclude(id__in=applied_job_ids).select_related("company").order_by("-created_at").first()
+    recommended_job = Jobs.objects.filter(status__in=("published", "active")).filter(Q(deadline__isnull=True) | Q(deadline__gte=timezone.localdate())).exclude(id__in=applied_job_ids).select_related("company").order_by("-created_at").first()
     profile, _ = Profiles.objects.get_or_create(user=user, defaults={"created_at": timezone.now(), "updated_at": timezone.now()})
     filled_fields = [user.phone, profile.city, profile.education, profile.bio, profile.photo]
     completion = 20 + (sum(bool(value) for value in filled_fields) * 16)

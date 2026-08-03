@@ -7,10 +7,6 @@ class NotificationsAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'title', 'message', 'is_read', 'created_at')
     search_fields = ('user', 'title')
 
-# @admin.register(ProfileSkills)
-# class ProfileSkillsAdmin(admin.ModelAdmin):
-#     list_display = ('profile', 'skill', 'level')
-#     search_fields = ('profile', 'skill')
 
 @admin.register(Profiles)
 class ProfilesAdmin(admin.ModelAdmin):

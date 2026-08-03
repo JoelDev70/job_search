@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -11,7 +12,11 @@ from accounts.models import Users
 
 
 def _published_jobs():
-    return Jobs.objects.filter(status__in=("published", "active")).select_related("company", "category")
+    return Jobs.objects.filter(
+        status__in=("published", "active")
+    ).filter(
+        Q(deadline__isnull=True) | Q(deadline__gte=timezone.localdate())
+    ).select_related("company", "category")
 
 
 def accueil_job_board(request):
@@ -26,12 +31,19 @@ def lister_offres(request):
         offres = offres.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(company__company_name__icontains=query))
     if category:
         offres = offres.filter(category_id=category)
-    return render(request, "jobs/recherche_d_offres.html", {"categories": Categories.objects.all(), "offres": offres, "query": query, "selected_category": category})
+    paginator = Paginator(offres, 8)
+    page_obj = paginator.get_page(request.GET.get("page"))
+    return render(request, "jobs/recherche_d_offres.html", {"categories": Categories.objects.all(), "page_obj": page_obj, "offres": page_obj.object_list, "query": query, "selected_category": category})
 
 
 def detail_offre(request, id):
     offre = get_object_or_404(Jobs.objects.select_related("company", "category"), id=id)
-    return render(request, "jobs/detail_offre.html", {"offre": offre})
+    user_id = request.session.get("user_id")
+    owner = user_id and (offre.company.recruiter_id == user_id or get_object_or_404(Users, id=user_id).role == "ADMIN")
+    if offre.deadline and offre.deadline < timezone.localdate() and not owner:
+        messages.info(request, "Cette offre a expiré.")
+        return redirect("liste_offres")
+    return render(request, "jobs/detail_offre.html", {"offre": offre, "is_expired": bool(offre.deadline and offre.deadline < timezone.localdate())})
 
 
 def profile_entreprise(request):
@@ -74,6 +86,7 @@ def dashboard_recruteur(request):
         "interviews_count": applications.filter(status="INTERVIEW").count(),
         "recent_applications": applications[:6],
         "recent_jobs": jobs.annotate(applications_total=Count("applications")).all()[:5],
+        "expired_jobs": jobs.filter(deadline__lt=timezone.localdate()).annotate(applications_total=Count("applications")),
     })
 
 
@@ -96,7 +109,7 @@ def profile_recruteur(request):
                 messages.success(request, "Vos coordonnées de recruteur ont été enregistrées.")
                 return redirect("profile_recruteur")
         elif form_type == "company":
-            company_form = CompanyForm(request.POST, instance=company, prefix="company")
+            company_form = CompanyForm(request.POST, request.FILES, instance=company, prefix="company")
             if company_form.is_valid():
                 saved_company = company_form.save(commit=False)
                 saved_company.recruiter = user
@@ -182,7 +195,10 @@ def postuler_offre(request, id):
     if Applications.objects.filter(user=user, job=job).exists():
         messages.info(request, "Vous avez déjà postulé à cette offre.")
         return redirect("detail_offre", id=job.id)
-    form = ApplicationForm(request.POST or None)
+    if job.deadline and job.deadline < timezone.localdate():
+        messages.error(request, "La date limite de cette offre est dépassée.")
+        return redirect("liste_offres")
+    form = ApplicationForm(request.POST or None, request.FILES or None)
     if request.method == "POST" and form.is_valid():
         application = form.save(commit=False)
         application.user = user
@@ -193,3 +209,23 @@ def postuler_offre(request, id):
         messages.success(request, "Votre candidature a été envoyée.")
         return redirect("detail_offre", id=job.id)
     return render(request, "jobs/postuler.html", {"form": form, "offre": job})
+
+
+@require_POST
+def modifier_statut_candidature(request, id):
+    user, redirect_response = _recruiter_user(request)
+    if redirect_response:
+        return redirect_response
+    application = get_object_or_404(Applications.objects.select_related("job__company"), id=id)
+    if user.role != "ADMIN" and application.job.company.recruiter_id != user.id:
+        messages.error(request, "Vous ne pouvez gérer que les candidatures de votre entreprise.")
+        return redirect("dashboard_recruteur")
+    status = request.POST.get("status")
+    allowed_statuses = dict(Applications.STATUS_CHOICES)
+    if status not in allowed_statuses:
+        messages.error(request, "Statut invalide.")
+    else:
+        application.status = status
+        application.save(update_fields=["status"])
+        messages.success(request, "Le statut de la candidature a été mis à jour.")
+    return redirect("dashboard_recruteur")

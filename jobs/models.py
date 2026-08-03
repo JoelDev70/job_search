@@ -29,12 +29,21 @@ class Companies(models.Model):
     city = models.CharField(max_length=100, blank=True, null=True)
     country = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    logo = models.CharField(max_length=255, blank=True, null=True)
+    logo = models.FileField(upload_to="companies/logos/", max_length=255, blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
     def __str__(self):
         return self.company_name
+
+    @property
+    def logo_url(self):
+        """Prend aussi en charge les anciens logos enregistrés comme URL."""
+        if not self.logo:
+            return ""
+        if self.logo.name.startswith(("http://", "https://")):
+            return self.logo.name
+        return self.logo.url
     
     class Meta:
         managed = True
@@ -58,7 +67,9 @@ class Applications(models.Model):
     application_date = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default="PENDING")
     matching_score = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    cv = models.CharField(max_length=255, blank=True, null=True)
+    cv = models.FileField(upload_to="applications/cv/", max_length=255, blank=True, null=True)
+    # Colonne texte conservée pour ne pas tronquer les anciennes lettres saisies.
+    # Les nouvelles candidatures y enregistrent le chemin du PDF téléversé.
     cover_letter = models.TextField(blank=True, null=True)
 
     def __str__(self):

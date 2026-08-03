@@ -10,12 +10,12 @@
     <p class="opacity-60 mt-2">{{ offre.company.company_name }}</p>
   </div>
   <form
-    method="post"
+    method="post" enctype="multipart/form-data"
     class="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6 md:p-8 space-y-5"
   >
     {% csrf_token %}{% for field in form %}
     <div class="form-control">
-      {{ field.label_tag }}{{ field }}{% if field.errors %}
+      {{ field.label_tag }}{{ field }}{% if field.name == "cv" %}<p class="mt-1 text-xs text-[#45464d]">CV au format PDF, 5 Mo maximum.</p>{% elif field.name == "cover_letter" %}<p class="mt-1 text-xs text-[#45464d]">Lettre de motivation au format PDF, 5 Mo maximum.</p>{% endif %}{% if field.errors %}
       <p class="text-error text-sm">{{ field.errors|striptags }}</p>
       {% endif %}
     </div>
