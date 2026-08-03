@@ -21,5 +21,15 @@ class SkillsAdmin(admin.ModelAdmin):
     
 @admin.register(Users)
 class UsersAdmin(admin.ModelAdmin):
-    list_display = ('id', 'username', 'first_name', 'last_name', 'email','password', 'phone', 'role', 'is_active', 'created_at', 'updated_at')
+    list_display = ('id', 'username', 'first_name', 'last_name', 'email', 'phone', 'role', 'is_active', 'created_at', 'updated_at')
+    list_filter = ('role', 'is_active')
+    actions = ('ban_accounts', 'unban_accounts')
     search_fields = ('username', 'email')
+
+    @admin.action(description="Bannir les comptes sélectionnés")
+    def ban_accounts(self, request, queryset):
+        queryset.exclude(role="ADMIN").update(is_active=0)
+
+    @admin.action(description="Réactiver les comptes sélectionnés")
+    def unban_accounts(self, request, queryset):
+        queryset.update(is_active=1)

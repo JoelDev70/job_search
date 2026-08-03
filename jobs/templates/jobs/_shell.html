@@ -1,9 +1,12 @@
+{% load static %}
 <!doctype html>
 <html lang="fr" class="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Job Search{% endblock %}</title>
+    <link rel="manifest" href="{% static 'manifest.webmanifest' %}" />
+    <meta name="theme-color" content="#131b2e" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
@@ -135,5 +138,8 @@
     >
       © 2026 Job Search · La plateforme moderne de recrutement.
     </footer>
+    <script>
+      if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js');
+    </script>
   </body>
 </html>

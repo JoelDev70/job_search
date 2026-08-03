@@ -43,10 +43,11 @@ class ApplicationForm(forms.ModelForm):
 class JobForm(forms.ModelForm):
     class Meta:
         model = Jobs
-        fields = ["company", "category", "title", "description", "city", "province", "country", "contract_type", "salary_min", "salary_max", "experience_required", "education_required", "vacancies", "deadline", "status"]
+        fields = ["company", "category", "title", "description", "city", "province", "country", "contract_type", "salary_min", "salary_max", "experience_required", "education_required", "vacancies", "deadline", "attachment", "status"]
         widgets = {
             "description": forms.Textarea(attrs={"class": "textarea textarea-bordered w-full", "rows": 7}),
             "deadline": forms.DateInput(attrs={"type": "date", "class": "input input-bordered w-full"}),
+            "attachment": forms.ClearableFileInput(attrs={"class": "block w-full rounded-lg border border-[#c6c6cd] p-2", "accept": "application/pdf,.pdf"}),
         }
 
     def clean(self):
@@ -55,6 +56,16 @@ class JobForm(forms.ModelForm):
         if minimum is not None and maximum is not None and minimum > maximum:
             self.add_error("salary_max", "Le salaire maximum doit être supérieur au minimum.")
         return cleaned
+
+    def clean_attachment(self):
+        document = self.cleaned_data.get("attachment")
+        if not document:
+            return document
+        if document.size > 5 * 1024 * 1024:
+            raise forms.ValidationError("Le document ne doit pas dépasser 5 Mo.")
+        if not document.name.lower().endswith(".pdf") or (getattr(document, "content_type", "") and document.content_type != "application/pdf"):
+            raise forms.ValidationError("Choisissez un document PDF.")
+        return document
 
 
 class CompanyForm(forms.ModelForm):

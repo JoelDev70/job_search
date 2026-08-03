@@ -11,6 +11,7 @@ from jobs.models import Applications, Jobs
 
 from .forms import ProfileForm
 from .models import Profiles, Users
+from .services import notify
 
 PUBLIC_ROLES = {"JOB_SEEKER", "RECRUITER"}
 
@@ -68,6 +69,8 @@ def inscription(request):
                     updated_at=now,
                 )
                 Profiles.objects.create(user=user, created_at=now, updated_at=now)
+            if role == "JOB_SEEKER":
+                notify(user, "Bienvenue sur Job Search", "Bienvenue ! Votre compte candidat est prêt. Découvrez les offres et postulez dès maintenant.")
             request.session["user_id"] = user.id
             request.session["username"] = user.username
             request.session["user_role"] = user.role

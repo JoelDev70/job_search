@@ -37,4 +37,19 @@
   </div>
   {% if expired_jobs %}<section class="rounded-2xl border border-[#c6c6cd] bg-white p-6"><div class="flex items-center justify-between gap-4"><div><h2 class="text-xl font-bold">Historique des offres expirées</h2><p class="mt-1 text-sm text-[#45464d]">Ces offres ne sont plus visibles par les candidats.</p></div><span class="rounded-full bg-[#f2f4f6] px-3 py-1 text-sm font-bold">{{ expired_jobs|length }}</span></div><div class="mt-4 grid gap-3 md:grid-cols-2">{% for job in expired_jobs %}<div class="rounded-xl border border-[#e0e3e5] p-4"><div class="flex items-start justify-between gap-3"><div><p class="font-bold">{{ job.title }}</p><p class="mt-1 text-sm text-[#45464d]">Échue le {{ job.deadline|date:"d/m/Y" }} · {{ job.applications_total }} candidature{{ job.applications_total|pluralize }}</p></div><a class="shrink-0 text-sm font-bold text-[#006c49]" href="{% url 'modifier_offre' job.id %}">Modifier</a></div></div>{% endfor %}</div></section>{% endif %}
 </section>
+{% for job in recent_jobs %}{% if job.deadline == report_date %}<div class="rounded-xl border border-[#6ffbbe] bg-[#d9fbe9] p-4 text-[#005236]"><strong>Rapport disponible :</strong> l’offre « {{ job.title }} » expire demain. <a class="font-bold underline" href="{% url 'rapport_candidatures' job.id %}">Télécharger le rapport des candidatures</a></div>{% endif %}{% endfor %}
+<script>
+  document.addEventListener('submit', function (event) {
+    const form = event.target;
+    if (!form.action.includes('/statut/')) return;
+    const status = form.querySelector('[name="status"]').value;
+    if (!['INTERVIEW', 'ACCEPTED'].includes(status)) return;
+    const label = status === 'INTERVIEW' ? 'la date et l’heure de l’entretien' : 'la date et l’heure de rencontre';
+    const value = window.prompt('Indiquez ' + label + ' (AAAA-MM-JJTHH:MM) :');
+    if (!value) { event.preventDefault(); return; }
+    let input = form.querySelector('[name="appointment_at"]');
+    if (!input) { input = document.createElement('input'); input.type = 'hidden'; input.name = 'appointment_at'; form.appendChild(input); }
+    input.value = value;
+  });
+</script>
 {% endblock %}

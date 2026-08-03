@@ -30,6 +30,7 @@ class Companies(models.Model):
     country = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     logo = models.FileField(upload_to="companies/logos/", max_length=255, blank=True, null=True)
+    is_approved = models.BooleanField(default=False)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
 
@@ -71,6 +72,8 @@ class Applications(models.Model):
     # Colonne texte conservée pour ne pas tronquer les anciennes lettres saisies.
     # Les nouvelles candidatures y enregistrent le chemin du PDF téléversé.
     cover_letter = models.TextField(blank=True, null=True)
+    interview_at = models.DateTimeField(blank=True, null=True)
+    meeting_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return self.user.username
@@ -109,6 +112,7 @@ class Jobs(models.Model):
     vacancies = models.IntegerField(blank=True, null=True)
     deadline = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=20, default="published")
+    attachment = models.FileField(upload_to="jobs/attachments/", max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     updated_at = models.DateTimeField(default=timezone.now)
 
